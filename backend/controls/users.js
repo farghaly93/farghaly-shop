@@ -39,7 +39,20 @@ exports.signup = async(req, res) => {
         res.json({message});
     }
 }
-
+exports.updateuserdata = async(req, res) => {
+    req.body.data.password = bcrypt.hashSync(req.body.data.password, 10);
+    const updateuser = await Users.update({_id: req.body.userId}, req.body.data);
+    if(updateuser.nModified===1) {
+        res.json({updated: true});
+        return;
+    }
+    res.json({updated: false});
+}
+exports.getuserdata = async(req, res) => {
+    const userdata = await Users.find(req.body);
+    console.log(userdata[0]);
+    res.status(200).json({userdata: userdata[0]});
+}
 exports.getmessages = async(req, res) => {
     const messages = await Messages.find({userEmail: req.params.userEmail});
     res.json({messages});

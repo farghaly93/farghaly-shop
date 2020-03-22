@@ -1,6 +1,6 @@
 <template>
           <div class="container">
-              <div v-if="mode==='signup'" class="input" :class="{invalid: $v.fullname.$error}">
+              <div v-if="mode==='signup' || way==='update'" class="input" :class="{invalid: $v.fullname.$error}">
               <div class="insert">
                 <label><i class="fa fa-check-square" aria-hidden="true"></i> <strong>Full name</strong></label>
                 <input @blur="$v.fullname.$touch()" v-model="fullname" class="form-control" type="text" placeholder="Full name"/>
@@ -9,7 +9,7 @@
                 <p v-if="!$v.fullname.required">Put your full name</p>
               </div>
             </div>
-            <div v-if="mode==='signup'" class="input" :class="{invalid: $v.phone.$error}">
+            <div v-if="mode==='signup' || way==='update'" class="input" :class="{invalid: $v.phone.$error}">
               <div class="insert">
                 <label><i class="fa fa-check-square" aria-hidden="true"></i> <strong>Phone</strong></label>
                 <input @blur="$v.phone.$touch()" v-model="phone" class="form-control" type="text" placeholder="phone"/>
@@ -18,7 +18,7 @@
                 <p v-if="!$v.phone.required">Put phone number</p>
               </div>
             </div>
-            <div v-if="mode==='signup'" class="input" :class="{invalid: $v.address.$error}">
+            <div v-if="mode==='signup' || way==='update'" class="input" :class="{invalid: $v.address.$error}">
               <div class="insert">
                 <label><i class="fa fa-check-square" aria-hidden="true"></i> <strong>Address</strong></label>
                 <input @blur="$v.address.$touch()" v-model="address" class="form-control" type="text" placeholder="Address"/>
@@ -47,7 +47,7 @@
                 <p v-if="!$v.password.minLen">password should be at least {{$v.password.$params.minLen.min}} characters...</p>
               </div>
             </div>
-            <div v-if="mode==='signup'" class="input" :class="{invalid: $v.confirm.$error}">
+            <div v-if="mode==='signup' || way==='update'" class="input" :class="{invalid: $v.confirm.$error}">
               <div class="insert">
                 <label><i class="fa fa-check-square" aria-hidden="true"></i> <strong>confirm password</strong></label>
                 <input @blur="$v.confirm.$touch()" v-model="confirm" class="form-control" type="password" placeholder="Password"/>
@@ -59,15 +59,31 @@
             
              <app-loading v-if="authLoading"/>
              <div class="buttons">
-                <button :disabled="$v.email.$invalid&&$v.password.$invalid&&($v.confirm.$invalid&&mode==='signup')" @click.prevent="() => {mode==='signin'?signin():signup()}" class="button btn btn-primary">Submit</button>
-                <button @click="switchMode" class="button btn btn-danger">{{mode==='signin'?'Sign up':'Login'}}</button>
+                <button :disabled="$v.email.$invalid&&$v.password.$invalid&&($v.confirm.$invalid&&mode==='signup')" @click.prevent="() => {way==='update'?update():mode==='signin'?signin():signup()}" class="button btn btn-primary">Submit</button>
+                <button v-if="way==='register'" @click="switchMode" class="button btn btn-danger">{{mode==='signin'?'Sign up':'Login'}}</button>
             </div>
           </div>
 </template>
 
 <script>
+import axios from 'axios';
     import {email, required, minLength, sameAs, requiredUnless} from 'vuelidate/lib/validators';
+    import loading from './loading'
 export default {
+   props: ['way'],
+   created() {
+     if(this.way === 'update') {
+       axios.post('/getuserdata', {_id: this.userId}).then(res => {
+         this.email = res.data.userdata.email;
+         this.fullname = res.data.userdata.fullname;
+         this.phone = res.data.userdata.phone;
+         this.address = res.data.userdata.address;
+       });
+     }
+   },
+   components: {
+     appLoading: loading
+   },
    data() {
             return {
             email: '',
@@ -112,10 +128,20 @@ export default {
             signup() {
                  this.$store.dispatch('signup', {email: this.email, password: this.password, fullname: this.fullname, phone: this.phone, address: this.address})
             },
+            update() {
+              axios.post('/updateuserdata', {userId: this.userId, data: {email: this.email, password: this.password, fullname: this.fullname, phone: this.phone, address: this.address} }).then(res => {
+                if(res.data.updated) {
+                  this.$store.dispatch('writemessage', 'user data updated successfully');
+                } 
+              });
+            }
         },
         computed: {
             authLoading() {
                 return this.$store.getters.authLoading;
+            },
+            userId() {
+              return this.$store.getters.userId;
             }
         }
 }

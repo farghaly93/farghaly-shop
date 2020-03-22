@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
 
 const adsSchema = mongoose.Schema({
-  category: {
-    type: String,
-    required: true,
-  },
   text1: {
     type: String,
     required: true,
@@ -14,12 +10,12 @@ const adsSchema = mongoose.Schema({
     required: true,
     text: true
   },
-  descreption: {
+  description: {
     type: String,
     required: true,
     text: true
   },
-  iamge: {
+  image: {
     type: String
   }
 });

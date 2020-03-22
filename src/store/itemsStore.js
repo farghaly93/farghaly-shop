@@ -18,7 +18,10 @@ import axios from 'axios';
     wishlistItems: [],
     wishloading: false,
     ads: [],
-    checked: false
+    checked: 0,
+    confirmed: 0,
+    shiped: 0,
+    delievered: 0,
   };
 
 
@@ -53,6 +56,9 @@ import axios from 'axios';
     getwishlist(state, data) {
       state.wishlist = data.wishlist;
       state.checked = data.checked;
+      state.confirmed = data.confirmed;
+      state.shiped = data.shiped;
+      state.delievered = data.delievered;
     },
     getmostvisited(state, data) {
       state.mostvisited = data.mostvisited;
@@ -143,9 +149,9 @@ import axios from 'axios';
         state.showModal = true;
         return;
       }
-      axios.post('/addtowishlist', {itemId: data.itemId, price: data.price, userId: rootState.usersStore.userId}).then(res => {
+      axios.post('/addtowishlist', {itemId: data.itemId, name: data.name,price: data.price, userId: rootState.usersStore.userId}).then(res => {
         if(res.data.event) {
-          rootState.usersStore.message = res.data.event + " successfully";
+          rootState.usersStore.message = res.data.event ;
           dispatch('getwishlist');
         }
       })
@@ -156,7 +162,13 @@ import axios from 'axios';
       axios.post('/getwishlist', {userId: rootState.usersStore.userId}).then(res => {
         if(res.data.wishlist) {
           console.log('wishlist', res.data.wishlist);
-          commit('getwishlist', {wishlist: res.data.wishlist, checked: res.data.checked});
+          commit('getwishlist', {
+            wishlist: res.data.wishlist,
+            checked: res.data.checked, 
+            confirmed: res.data.confirmed, 
+            shiped: res.data.shiped, 
+            delievered: res.data.delievered
+          });
           dispatch('getwishlistItems');
           state.wishloading = false;
         }
@@ -170,7 +182,6 @@ import axios from 'axios';
         axios.get('/getitem/'+item.itemId).then(res => {
           const itemOBJ = res.data.item;
           itemOBJ['quantity'] = item.quantity;
-          itemOBJ['checked'] = item.checked;
           items.push(itemOBJ);
         });
       }),
@@ -250,6 +261,15 @@ import axios from 'axios';
     checked() {
       return state.checked;
     },
+    confirmed() {
+      return state.confirmed;
+    },
+    shiped() {
+      return state.shiped;
+    },
+    delievered() {
+      return state.delievered;
+    }
   }
 
 

@@ -85,10 +85,10 @@
     <!--================ Hero Carousel start =================-->
     <section class="section-margin mt-0">
       <div class="row owl-theme hero-carousel">
-        <div v-for="cat in categories" :key="cat.name" style="position:relative;margin:0 auto;" class="col-md-6 hero-carousel__slide">
-          <img width="100%" height="100%" :src="cat.image" alt="" class="img-fluid">
-          <a @click="()=>gotoitems(cat.name)" href="" style="position:absolute;left:0" class="hero-carousel__slideOverlay">
-            <h3>{{cat.name}}</h3>
+        <div v-for="cat in categories" :key="cat.category" style="position:relative;margin:0 auto;" class="col-md-6 hero-carousel__slide">
+          <!-- <img width="100%" height="100%" :src="cat.image" alt="" class="img-fluid"> -->
+          <a @click="()=>gotoitems(cat.category)" href="" style="position:absolute;left:0" class="hero-carousel__slideOverlay">
+            <h3>{{cat.category}}</h3>
             <p>Go to category Page</p>
           </a>
         </div>
@@ -241,5 +241,9 @@ export default {
   }
   .hero-banner {
     z-index: .9;
+  }
+  .hero-carousel__slide {
+    width: 100%;
+    height: 200px;
   }
 </style>

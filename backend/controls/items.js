@@ -26,7 +26,7 @@ exports.fetchChars = async(req, res) => {
 };
 exports.fetchCats = async(req, res) => {
     try {
-        const fetchedCats = await Categories.find();
+        const fetchedCats = await Chars.find();
         res.status(200).json({cats: fetchedCats});
     } catch(err) {
         console.log(err);
@@ -83,10 +83,14 @@ exports.search = async(req, res) => {
 exports.addtowishlist = async(req, res) => {
     try {
         const body = req.body;
-        const wishlist = await Wishlist.find({userId: body.userId, shiped: 0});
+        const wishlist = await Wishlist.find({userId: body.userId, done: 0});
+        if(wishlist.length > 0 &&  wishlist[0].confirmed === 1) {
+            res.json({event: 'You have purchase in process...'});
+            return;
+        }
         let event = '';
         if(wishlist.length === 0) {
-            const addNew = await new Wishlist({userId: body.userId, items: [{itemId: body.itemId, price: body.price}]}).save();
+            const addNew = await new Wishlist({userId: body.userId, items: [{itemId: body.itemId, price: body.price, name: body.name}]}).save();
             if(addNew) event = 'added';
         } else {
             const wish = {...wishlist[0]._doc};
@@ -96,15 +100,15 @@ exports.addtowishlist = async(req, res) => {
             });
             console.log(isExist);
             if(!isExist) {
-                const addToList = await Wishlist.update({userId: body.userId, shiped: 0}, {$push: {items: {itemId: body.itemId, price: body.price}}});
+                const addToList = await Wishlist.update({userId: body.userId, confirmed: 0, done: 0}, {$push: {items: {itemId: body.itemId, price: body.price, name: body.name}}});
                 if(addToList.nModified===1) event = 'added';
             } else {
                 console.log('delete, pull', body);
-                const removeFromList = await Wishlist.update({userId: body.userId, shiped: 0}, {$pull: {items: {itemId: body.itemId}}});
-                const wishlist = await Wishlist.find({userId: req.body.userId, shiped: 0});
+                const removeFromList = await Wishlist.update({userId: body.userId, confirmed: 0, done: 0}, {$pull: {items: {itemId: body.itemId}}});
+                const wishlist = await Wishlist.find({userId: req.body.userId, confirmed: 0, done: 0});
                 const wish = {...wishlist[0]._doc};
                 if(wish.items.length === 0) {
-                    const del = await Wishlist.deleteOne({userId: body.userId, shiped: 0});
+                    const del = await Wishlist.deleteOne({userId: body.userId, confirmed: 0, done: 0});
                     if(del) event = 'removed';
                 }
 
@@ -118,9 +122,27 @@ exports.addtowishlist = async(req, res) => {
 };
 exports.getwishlist = async(req, res) => {
     try {
-        const wishlist = await Wishlist.find({userId: req.body.userId, shiped: 0});
-        const wish = {...wishlist[0]}._doc.items
-        res.status(200).json({wishlist: wish, checked: wishlist[0].checked});
+        const wishlist = await Wishlist.find({userId: req.body.userId, done: 0});
+        const wish = wishlist.length > 0? {...wishlist[0]}._doc.items: [];
+        res.status(200).json({
+            wishlist: wish, 
+            checked: wishlist[0].checked, 
+            confirmed: wishlist[0].confirmed, 
+            shiped: wishlist[0].shiped, 
+            delievered: wishlist[0].delievered
+        });
+    } catch(err) {
+        console.log(err);
+    }
+};
+exports.getpurchases = async(req, res) => {
+    try {
+        const wishlist = await Wishlist.find({userId: req.params.userId, done: 1});
+        const wish = wishlist.map(w => {return {items: {...w}._doc.items, total: w.totalPrice, date: w.date, id: w._id} || []});
+        console.log(wish);
+        res.status(200).json({
+            purchases: wish,
+        });
     } catch(err) {
         console.log(err);
     }
@@ -128,14 +150,14 @@ exports.getwishlist = async(req, res) => {
 exports.updatecart = async(req, res) => {
     console.log(req.body);
     try {
-        const userCart = await Wishlist.find({userId: req.body.userId});
+        const userCart = await Wishlist.find({userId: req.body.userId, confirmed: 0, done: 0});
         const list = [...{...userCart[0]}._doc.items];
         const item = list.find(li => li.itemId === req.body.itemId);
         const index = list.findIndex(li => li.itemId === req.body.itemId);
         item['quantity'] = req.body.quantity;
         list.splice(index, 1);
         list.push(item);
-        const update = await Wishlist.update({userId: req.body.userId}, {items: list, totalPrice: req.body.total});
+        const update = await Wishlist.update({userId: req.body.userId, confirmed: 0, done: 0}, {items: list, totalPrice: req.body.total});
          console.log(update);
         if(update.nModified === 1) {
             res.status(200).json({done: true});
@@ -146,7 +168,7 @@ exports.updatecart = async(req, res) => {
 };
 exports.checkcart = async(req, res) => {
     try {
-        const update = await Wishlist.update({userId: req.body.userId}, {$bit: {checked: {xor: 1}}});
+        const update = await Wishlist.update({userId: req.body.userId, done: 0}, {$bit: {checked: {xor: 1}}});
          console.log(update.nModified)
          if(update.nModified > 0) {
              res.status(200).json({done: true});

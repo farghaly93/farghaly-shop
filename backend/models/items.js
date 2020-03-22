@@ -35,7 +35,7 @@ const itemsSchema = mongoose.Schema({
     required: true,
     text: true
   },
-  descreption: {
+  description: {
     type: String,
     required: true,
     text: true

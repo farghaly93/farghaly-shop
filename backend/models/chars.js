@@ -12,19 +12,15 @@ const charsSchema = mongoose.Schema({
   },
   char2: {
     type: String,
-    required: true
   },
   char3: {
     type: String,
-    required: true
   },
   char4: {
     type: String,
-    required: true
   },
   char5: {
     type: String,
-    required: true
   },
 });
 

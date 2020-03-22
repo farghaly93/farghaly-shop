@@ -1,7 +1,7 @@
 <template>
     <app-modal>
         <h3 class="login" slot="header">Register</h3>
-       <app-userform slot="body"/>
+       <app-userform way="register" slot="body"/>
     </app-modal>
 </template>
 <script>

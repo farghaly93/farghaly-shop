@@ -31,7 +31,7 @@
         <div class="bottom row">
             <div class="col-md-6 col-xs-12 details">
                 <h4>Details</h4>
-                <p>{{detailsObj.descreption}}</p>
+                <p>{{detailsObj.description}}</p>
                 <hr>
             </div>
             <div class="col-md-6 col-xs-12 rates">
@@ -130,7 +130,7 @@ import commentVue from '../components/comment.vue';
                  });
             },
             addtowishlist() {
-                this.$store.dispatch('addtowishlist', {itemId: this.id, price: this.detailsObj.price});
+                this.$store.dispatch('addtowishlist', {itemId: this.id, name: this.itemDetails.name, price: this.detailsObj.price});
                 this.$store.dispatch('getwishlist');
             },
             

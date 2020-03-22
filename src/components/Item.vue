@@ -9,7 +9,7 @@
                 </div>
                 
                 <div v-if="mode!=='most'" class="desc">
-                    <p class="card-text">{{itemDetails.descreption.split(' ').slice(1, 50).join(' ')}}</p>
+                    <p class="card-text">{{itemDetails.description.split(' ').slice(1, 50).join(' ')}}</p>
                 </div>
                 <p v-if="mode!=='most'" style="color: #444;font-weight:bold">See more...</p>
                 <app-rating class="stars" :rating="itemDetails.rating"/>
@@ -33,7 +33,7 @@ import rating from './rating.vue';
                 this.$router.push({path: '/details/'+this.itemDetails._id});
             },
             addtowishlist() {
-                this.$store.dispatch('addtowishlist', {itemId: this.itemDetails._id, price: this.itemDetails.price});
+                this.$store.dispatch('addtowishlist', {itemId: this.itemDetails._id, name: this.itemDetails.name, price: this.itemDetails.price});
             }
         },
         components: {

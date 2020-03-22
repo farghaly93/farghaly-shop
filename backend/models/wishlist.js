@@ -6,6 +6,7 @@ const wishlistSchema = new mongoose.Schema({
             type: String,
             required: true,
         },
+        name: String,
         quantity: {
             type: Number,
             default: 0
@@ -27,6 +28,10 @@ const wishlistSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    confirmed: {
+        type: Number,
+        default: 0
+    },
     shiped: {
         type: Number,
         default: 0
@@ -34,7 +39,22 @@ const wishlistSchema = new mongoose.Schema({
     delievered: {
         type: Number,
         default: 0
+    },
+    done: {
+        type: Number,
+        default: 0
+    },
+    date: {
+        type: String,
+        default: new Date()
     }
 });
-
+wishlistSchema.statics.getCarts = function(){
+    return this.aggregate([
+        {$match: {done: 0}},
+       {$unwind: '$userId'},
+       {$group:{_id: {userId: '$userId', cartId: '$_id' }}},
+       {$sort:{date:-1}}
+     ]);
+ }
 module.exports = new mongoose.model('wishlist', wishlistSchema);

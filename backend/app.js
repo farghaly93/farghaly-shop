@@ -5,6 +5,8 @@ const mongoose= require('mongoose');
 const app= express();
 const itemsRouter = require('./routes/items');
 const usersRouter = require('./routes/users');
+const adminRouter = require('./routes/admin');
+const serveStatic = require('serve-static')
 
 
 mongoose.connect("mongodb+srv://farghaly:farghaly_93@cluster0-i8la2.mongodb.net/E-shop",{ useNewUrlParser: true,  useUnifiedTopology: true  })
@@ -35,6 +37,7 @@ app.use((req, res, next) => {
 
 app.use(itemsRouter);
 app.use(usersRouter);
+app.use(adminRouter);
 
 
 
@@ -46,6 +49,14 @@ app.use(usersRouter);
 // app.use((req, res, next) => {
 //   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 // });
+
+//here we are configuring dist to serve app files
+app.use('/', serveStatic(path.join(__dirname, '/dist')))
+
+// this * route is to serve project on different page routes except root `/`
+app.get(/.*/, function (req, res) {
+	res.sendFile(path.join(__dirname, '/dist/index.html'))
+})
 
 
 module.exports = app;

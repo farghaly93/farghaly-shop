@@ -7,7 +7,7 @@ import router from '../router';
     authLoading: false,
     userEmail: null,
     expDate: 0,
-    role: '0',
+    role: 0,
     userId: ''
   };
 
@@ -55,6 +55,7 @@ import router from '../router';
             state.expDate = expDate;
             dispatch('autoSignin');
             dispatch('getwishlist');
+            if(state.role===1) router.push('/dashboard');
         } else {
             state.message = res.data.message;
         }
@@ -111,6 +112,8 @@ import router from '../router';
             localStorage.removeItem('userId');
             state.role = null;
             localStorage.removeItem('role');
+            rootState.itemsStore.showModal = true;
+            router.push('/');
        }
     },
     logout({commit, rootState}) {

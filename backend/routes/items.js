@@ -11,6 +11,7 @@ router.post('/filterItems', itemsControls.filterItems);
 router.post('/getChars', itemsControls.getChars);
 router.post('/addtowishlist', itemsControls.addtowishlist);
 router.post('/getwishlist', itemsControls.getwishlist);
+router.get('/getpurchases/:userId', itemsControls.getpurchases);
 router.post('/rateitem', itemsControls.rateitem);
 router.post('/updatecart', itemsControls.updatecart);
 router.post('/addcomment', itemsControls.addcomment);

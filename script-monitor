@@ -1,0 +1,131 @@
+<html !DOCTYPE>
+    <head>
+        <title>Butterfly-Effect</title>
+        <style>
+            #content {
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 30px;
+                padding: 20px;
+                width: 90%;
+                background-color: #eaeeee;
+            }
+            .par {
+                margin-left: auto;
+                margin-right: auto;
+                width: 90%;
+                background-color: #35625ae8;
+                padding: 3px 10px;
+                border-radius: 30px;
+                margin-top: 20px;
+                font-size: 20px;
+                color: #fff;
+                font-weight: bold;
+                font-family:'Courier New', Courier, monospace;
+            }
+            .active {
+                background-color: #623548e8;
+                width: 95%;
+                font-size: 30px;
+            }
+            #arrows img{
+                width: 100px;
+                height: 100px;
+            }
+            #arrows .left {
+                position: fixed;
+                left: 0;
+            }
+            #arrows .right {
+                position: fixed;
+                right: 0;
+            }
+        </style>
+    </head>
+    <body style="text-align: center;">
+        <div>
+            <h1 style="text-align: center;">Butterfly-Effect</h1>
+            <input type="file" id="input"/>
+            <p id="text"></p>
+            <div id="content"></div>
+            <div id="arrows">
+                <img class="left" src="https://www.clipartmax.com/png/middle/268-2684412_left-arrow-arrow-left.png"/>
+                <img class="right" src="https://e7.pngegg.com/pngimages/924/935/png-clipart-arrow-symbol-sign-right-arrow-angle-logo.png"/>
+                <i class="fa fa-arrow-right"></i>
+            </div>
+        </div>
+        <script type="text/javascript">
+            class TextScript {
+                script = '';
+                paragraphs = ['jjjj'];
+                index = 0;
+                
+                initiate() {
+                    document.getElementById('input').addEventListener('change' , this.readFile)
+                    document.addEventListener('keydown', this.navigate);
+                }
+                navigate = (event) => {
+                    if(event.keyCode == 39) {
+                        this.index++;
+                    } else if(event.keyCode == 37) {
+                        if(this.index > 0) this.index--;
+                    }
+                    else return;
+                    if(this.paragraphs.length>0) {
+                        var act = document.getElementsByClassName('active');
+                        console.log(act);
+                        if(act.length > 0) act[0].className = 'par';
+                        var el = document.getElementById(`${this.index}`);
+                        el.className = el.className + ' active';
+                        Element.prototype.documentOffsetTop = function () {
+                        return this.offsetTop + ( this.offsetParent ? this.offsetParent.documentOffsetTop() : 0 );
+                        };
+
+                        var top = el.documentOffsetTop() - ( window.innerHeight / 2 );
+                        window.scrollTo( 0, top );
+                        // var a = document.createElement('a');
+                        // a.href=`#${this.index}`;
+                        // a.click();
+                    }
+                }
+                readFile() {
+                    var fr = new FileReader();
+                    fr.onload = function() {
+                        console.log(this.paragraphs);
+                        this.script = fr.result;
+                        this.paragraphs = this.script.split('=');
+
+                    for(let par of this.paragraphs) {
+                        var text = par;
+                        var content = 'text';
+                        var part = document.createElement('div');
+                        part.setAttribute("class", "par");
+                        part.setAttribute("id", `${this.paragraphs.findIndex((parg) => {
+                            return parg === par;
+                        })}`);
+                        // console.log()
+                        if(par.includes('*')) {
+                            text = par.replace('*', '');
+                            part.setAttribute("style", "background-color:#516179;margin-bottom:40px;");
+                        }
+                        if(par.includes('https')) {
+                            content = 'image';
+                        }
+                        part.innerHTML = content==='text'?`<p>${text}</p>`:`<img src="${text}"/>`;
+                        document.getElementById('content').appendChild(part);
+                    }
+
+                    }
+                    fr.readAsText(this.files[0]);
+                }
+                get getScript() {
+                    return this.script;
+                }
+            }
+
+            const textScript = new TextScript();
+            textScript.initiate();
+            
+        </script>
+    </body>
+</html>
